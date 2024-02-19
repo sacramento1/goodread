@@ -1,7 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import CharField, TextField, SlugField, TextChoices, IntegerField, ImageField, URLField, \
     ManyToManyField, ForeignKey, CASCADE
-from django.forms import DateField
+from django.forms import DateField, DateTimeField
 
 from apps.shared.models import AbstractModel
 
@@ -48,6 +48,8 @@ class BookGenre(AbstractModel):
         return self.name
 
 class BookReview(AbstractModel):
+    book = ForeignKey("books.Book", CASCADE, "reviews")
+    user = ForeignKey("users.User", CASCADE, "reviews")
     body = TextField()
     rating = IntegerField(validators=[MaxValueValidator(5), MinValueValidator(1)])
     like_count = IntegerField(default=0)
