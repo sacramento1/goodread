@@ -1,35 +1,23 @@
-from django import forms
-from django.forms import ValidationError
+from django.forms import ModelForm, ImageField, Form, CharField, PasswordInput
 
 from apps.users.models import User
 
-class LoginForm(forms.Form):
-    username = forms.CharField(max_length=28, widget=forms.TextInput(attrs={"class": "form-control", "id": "username"}))
-    password = forms.CharField(max_length=28, widget=forms.TextInput(
-        attrs={"class": "form-control", "id": "password", "type": "password"}))
 
-class UserRegistrationForm(forms.ModelForm):
-    password1 = forms.CharField(max_length=28, widget=forms.TextInput(
-        attrs={"id": "password", "type": "password"}))
-    password2 = forms.CharField(max_length=28, widget=forms.TextInput(
-        attrs={"id": "password", "type": "password"}))
-    avatar = forms.FileField()
+class UserRegisterForm(ModelForm):
+    avatar = ImageField()
+    password = CharField(max_length=128, widget=PasswordInput)
 
     def save(self, commit=True):
         user = super().save(commit)
-        password1 = self.cleaned_data.get("password1")
-        password2 = self.cleaned_data.get("password2")
-        if password1 == password2:
-            user.set_password(password1)
-            user.save()
-        else:
-            raise ValidationError("Passwords must be match")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({"class": "form-control"})
+        user.set_password(self.cleaned_data["password"])
+        user.save()
+        return user
 
     class Meta:
         model = User
-        fields = ("username", "first_name", "last_name", "password1", "password2", "email", "avatar")
+        fields = ("avatar", "username", "first_name", "last_name", "middle_name", "email")
+
+
+class UserLoginForm(Form):
+    username = CharField(max_length=128)
+    password = CharField(max_length=128, widget=PasswordInput)

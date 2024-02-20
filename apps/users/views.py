@@ -1,40 +1,45 @@
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views import View
-from django.contrib.auth import logout, authenticate, login
-from django.contrib import messages
-from apps.users.forms import LoginForm, UserRegistrationForm
+
+from apps.users.forms import UserRegisterForm, UserLoginForm
 
 
 class UserRegisterView(View):
     def get(self, request):
-        form = UserRegistrationForm()
-        return render(request, "register.html", {"form": form})
+        form = UserRegisterForm()
+        return render(request, "users/register.html", context={"form": form})
 
     def post(self, request):
-        form = UserRegistrationForm(request.User, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "User successfully registered")
-            return redirect('goodread:login-page')
+        create_form = UserRegisterForm(request.POST, request.FILES)
+        if create_form.is_valid():
+            create_form.save()
+            return redirect("users:login-page")
         else:
-            return render(request, "register.html", {"form": form})
+            context = {
+                "form": create_form
+            }
+            return render(request, "users/register.html", context=context)
 
 
 class UserLoginView(View):
     def get(self, request):
-        form = LoginForm()
-        return render(request, "login.html", {"form": form})
+        form = UserLoginForm()
+        return render(request, "users/login.html", context={"form": form})
 
     def post(self, request):
-        form = LoginForm(request.User)
+        form = AuthenticationForm(data=request.POST)
         if form.is_valid():
-            user = authenticate(request, username=request.User.get("username"), password=request.User.get("password"))
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+            user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, "User successfully logged in")
-                return redirect("goodread:home")
+                messages.info(request, f"You have logged in as {username}")
+                return redirect("home")
             else:
-                messages.warning(request, "User not found")
-                return redirect("goodread:login-page")
+                messages.error(request, "Invalid username or password")
         else:
-            return render(request, "login.html", {"form": form})
+            return render(request, "users/login.html", {"form": form})

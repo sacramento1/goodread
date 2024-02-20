@@ -12,7 +12,6 @@ class LanguageChoice(TextChoices):
     RUSSIAN = "ru", "Russian"
     ARABIC = "ab", "Arabic"
     UZBEK = "uz", "Uzbek"
-0
 
 class Book(AbstractModel):
     title = CharField(max_length=128)
