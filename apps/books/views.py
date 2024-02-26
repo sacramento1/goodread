@@ -63,8 +63,8 @@ class AddReviewView(View):
 
 def review_update(request, pk: int):
     review = BookReview.objects.get(pk=pk)
-    if request.method == "REVIEW":
-        form = AddBookReviewForm(data=request.REVIEW, instance=review)
+    if request.method == "POST":
+        form = AddBookReviewForm(data=request.POST, instance=review)
         if form.is_valid():
             form.save()
             messages.success(request, "post successfully updated")
@@ -77,13 +77,21 @@ def review_update(request, pk: int):
 
 def review_delete(requet, pk):
     review = get_object_or_404(BookReview, pk=pk)
-    if requet.method == "REVIEW":
+    if requet.method == "POST":
         messages.success(requet, "Review successfully deleted")
         review.delete()
         return redirect(reverse('books:book-list', kwargs={"username": requet.user.username}))
     else:
         return render(requet, "review_delete.html", {"review": review})
     
+
+class AddBookView(View):
+    def post(self, request, pk):
+        pass
+
+
+
+
 # class GenreView(ListView):
 #     model = Book
 #     template_name = 'books/book-list.html'

@@ -1,7 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import CharField, TextField, SlugField, TextChoices, IntegerField, ImageField, URLField, \
-    ManyToManyField, ForeignKey, CASCADE
-from django.forms import DateField, DateTimeField
+    ManyToManyField, ForeignKey, CASCADE, DateField
+from django.forms import DateField, DateTimeField, EmailField
 
 from apps.shared.models import AbstractModel
 
@@ -36,6 +36,7 @@ class BookAuthor(AbstractModel):
     website = URLField()
     avatar = ImageField(upload_to="authors/avatar/%Y/%m/%d", default="avatar.png")
     about = TextField()
+    # email = EmailField(unique=True)
 
     def __str__(self) -> str:
         return F"{self.last_name} {self.first_name}"
